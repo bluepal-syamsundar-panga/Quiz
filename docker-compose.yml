@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: quiz_db
+      MYSQL_ROOT_PASSWORD: syam
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./Quiz_Backend
+    image: your-dockerhub-username/quiz-backend:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/quiz_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: syam
+      SERVER_PORT: 1805
+    ports:
+      - "1805:1805"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./quiz_frontend
+    image: your-dockerhub-username/quiz-frontend:latest
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  db_data:
